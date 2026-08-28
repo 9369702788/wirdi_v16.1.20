@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "820417111781",
+    "project_id": "wirdi-cd6c0",
+    "storage_bucket": "wirdi-cd6c0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820417111781:android:e616b3a50dc9363d69560c",
+        "android_client_info": {
+          "package_name": "com.wirdi.wirdi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "820417111781-3g94u9qmlkhpjfn4tji7mqtfeqnc4jeg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wirdi.wirdi",
+            "certificate_hash": "1bdb50308c4ccf07a30f98f8fdb5bcbf377b16ab"
+          }
+        },
+        {
+          "client_id": "820417111781-dnm69n1u5439pqo90tguelaf5rva9s6m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wirdi.wirdi",
+            "certificate_hash": "67683377d3214854d4e88e801abf545b1874781c"
+          }
+        },
+        {
+          "client_id": "820417111781-fdekgk9n7dlcsmuap1kdc494a7bumk83.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wirdi.wirdi",
+            "certificate_hash": "e73a95cfe928657bbf127e336fab6860c67ae224"
+          }
+        },
+        {
+          "client_id": "820417111781-b09pen99qhhpqmneantmh4d8h2e0t9jv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1aBMMUtgG6gZyi42Qh8vynTymUzWtMtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "820417111781-b09pen99qhhpqmneantmh4d8h2e0t9jv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
