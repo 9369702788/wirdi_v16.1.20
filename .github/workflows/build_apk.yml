@@ -1,0 +1,223 @@
+name: Build Wirdi Test APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: false
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Use a STABLE debug keystore (so Google Sign-In's SHA-1 never changes)
+        run: |
+          mkdir -p ~/.android
+          if [ -f "debug.keystore" ]; then
+            echo "Found a debug.keystore committed in the repo -- reusing it so the app's signing fingerprint stays IDENTICAL across every build."
+            cp debug.keystore ~/.android/debug.keystore
+          else
+            echo "::warning::No debug.keystore found in the repo -- generating a NEW one for this build only."
+            echo "::warning::Google/Apple Sign-In will keep breaking between builds until you commit this file permanently."
+            keytool -genkeypair -v \
+              -keystore ~/.android/debug.keystore \
+              -storepass android -keypass android \
+              -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+            cp ~/.android/debug.keystore debug.keystore
+          fi
+          echo ""
+          echo "===== SHA-1 / SHA-256 fingerprint for this build's signing key ====="
+          echo "===== Add BOTH of these to Firebase Console > Project Settings > Your Android app ====="
+          keytool -list -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey | grep -E "SHA1:|SHA256:"
+          echo "======================================================================"
+
+      - name: Upload debug.keystore (download this ONCE and commit it to the repo root permanently)
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-keystore-COMMIT-THIS-TO-REPO-ROOT
+          path: debug.keystore
+          if-no-files-found: warn
+
+      - name: Generate Android platform folder
+        run: flutter create --platforms=android --org com.wirdi --project-name wirdi .
+
+      - name: Patch AndroidManifest.xml
+        run: |
+          python3 patch_manifest.py
+
+      - name: Patch MainActivity for audio_service media notification
+        run: |
+          python3 patch_main_activity.py
+          echo "----- Resulting MainActivity.kt -----"
+          find android/app/src/main/kotlin -name MainActivity.kt -exec cat {} \;
+          echo "--------------------------------------"
+
+      - name: Create network_security_config.xml
+        run: |
+          mkdir -p android/app/src/main/res/xml
+          cp network_security_config.xml android/app/src/main/res/xml/network_security_config.xml
+
+      - name: Install real Adhan audio as a notification sound resource
+        run: |
+          mkdir -p android/app/src/main/res/raw
+          cp adhan_sound.mp3 android/app/src/main/res/raw/adhan_sound.mp3
+
+      - name: Patch Android Gradle for core library desugaring
+        run: |
+          python3 patch_gradle.py
+
+
+      - name: Setup Firebase (google-services.json + Gradle plugin)
+        run: |
+          # Copy google-services.json to android/app/
+          mkdir -p android/app
+          cp google-services.json android/app/google-services.json
+          echo "google-services.json copied"
+
+          # Patch build.gradle.kts to apply google-services plugin
+          python3 - <<'PY'
+          from pathlib import Path
+
+          # Classic buildscript-classpath + apply(plugin=...) style instead of
+          # the newer plugins-DSL id(...) style -- this works regardless of
+          # whether this Flutter version's template declares plugins via
+          # android/build.gradle.kts or android/settings.gradle.kts, since it
+          # never needs to find/edit an existing plugins {} block.
+          app_gradle = Path("android/app/build.gradle.kts")
+          if app_gradle.exists():
+              text = app_gradle.read_text()
+              if 'com.google.gms.google-services' not in text:
+                  text = text.rstrip() + '\n\napply(plugin = "com.google.gms.google-services")\n'
+                  app_gradle.write_text(text)
+                  print("Applied google-services plugin to app build.gradle.kts")
+
+          root_gradle = Path("android/build.gradle.kts")
+          if root_gradle.exists():
+              text = root_gradle.read_text()
+              if 'com.google.gms:google-services' not in text:
+                  if 'buildscript' in text and 'dependencies' in text:
+                      text = text.replace(
+                          'dependencies {',
+                          'dependencies {\n        classpath("com.google.gms:google-services:4.4.2")',
+                          1,
+                      )
+                  else:
+                      text = (
+                          'buildscript {\n'
+                          '    repositories {\n'
+                          '        google()\n'
+                          '        mavenCentral()\n'
+                          '    }\n'
+                          '    dependencies {\n'
+                          '        classpath("com.google.gms:google-services:4.4.2")\n'
+                          '    }\n'
+                          '}\n\n'
+                      ) + text
+                  root_gradle.write_text(text)
+                  print("Added google-services classpath to root build.gradle.kts")
+          else:
+              print("WARNING: android/build.gradle.kts not found -- classpath NOT added")
+          PY
+
+
+
+      - name: Set app name in launcher
+        run: |
+          mkdir -p android/app/src/main/res/values
+          printf '%s\n' '<?xml version="1.0" encoding="utf-8"?>' '<resources>' '    <string name="app_name">Wirdi</string>' '</resources>' > android/app/src/main/res/values/strings.xml
+
+      - name: Clear Flutter Cache
+        run: flutter pub cache clean --force || true
+
+      - name: Remove Old Lock File
+        run: rm -f pubspec.lock
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Show Dependencies
+        run: flutter pub deps
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wirdi-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+
+      - name: Check RELEASE signing secrets (skips release build gracefully if not configured yet -- never fails the job for this)
+        id: release_secrets
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          if [ -z "$RELEASE_KEYSTORE_BASE64" ] || [ -z "$RELEASE_KEYSTORE_PASSWORD" ] || [ -z "$RELEASE_KEY_ALIAS" ] || [ -z "$RELEASE_KEY_PASSWORD" ]; then
+            echo "::warning::Release signing secrets are not configured yet -- skipping the RELEASE build steps only. The debug APK above is unaffected. See RELEASE_SIGNING_SETUP.md in the repo root to enable release builds."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > release.keystore
+          cat > key.properties << EOF
+          storePassword=$RELEASE_KEYSTORE_PASSWORD
+          keyPassword=$RELEASE_KEY_PASSWORD
+          keyAlias=$RELEASE_KEY_ALIAS
+          storeFile=release.keystore
+          EOF
+          echo "Release keystore decoded from secret. Fingerprint shown below for diagnostics only (not a secret):"
+          keytool -list -v -keystore release.keystore -storepass "$RELEASE_KEYSTORE_PASSWORD" -alias "$RELEASE_KEY_ALIAS" | grep -E "SHA1:|SHA256:"
+          echo "present=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build RELEASE App Bundle (for Play Store) + RELEASE APK (for direct testing)
+        if: steps.release_secrets.outputs.present == 'true'
+        run: |
+          flutter build appbundle --release
+          flutter build apk --release
+
+      - name: Upload release AAB (upload this exact file to Google Play Console)
+        if: steps.release_secrets.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wirdi-release-aab-for-play-store
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: warn
+
+      - name: Upload release APK (for testing the real release build directly on a device)
+        if: steps.release_secrets.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wirdi-release-apk-for-testing
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: warn
+
