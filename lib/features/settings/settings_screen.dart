@@ -192,8 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListenableBuilder(
         listenable: appSettings,
         builder: (context, _) {
-          return ListView(
-            padding: const EdgeInsets.all(16),
+          return ListView(padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(context).padding.bottom),
             children: [
               Container(
                 width: double.infinity,
@@ -208,7 +207,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // end user to see in Settings. Debug builds only now.
                 child: kDebugMode
                     ? const Text(
-                        'Merge build: v80-2026-08-28-reminder-channel-rotated',
+                        'Merge build: v84-2026-08-28-sha256-plus-honest-report',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                       )

@@ -168,8 +168,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _loadAll,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
+        child: ListView(padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.of(context).padding.bottom),
           children: [
             Text(_greeting(l10n), style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),

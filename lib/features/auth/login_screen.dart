@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final l = AppLocalizations.of(context);
     return Scaffold(body: Container(
       decoration: const BoxDecoration(gradient: LinearGradient(colors: [AppColors.primaryEmerald, Color(0xFF064E3B)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-      child: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(28), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      child: SafeArea(child: SingleChildScrollView(padding: EdgeInsets.fromLTRB(28, 28, 28, 28 + MediaQuery.of(context).padding.bottom), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         const SizedBox(height: 32),
         const Icon(Icons.auto_stories_rounded, size: 64, color: AppColors.goldAccent),
         const SizedBox(height: 12),

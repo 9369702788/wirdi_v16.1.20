@@ -1124,5 +1124,7 @@
   "khatmaCalendarLegendMissed": "Target terlewat",
   "khatmaCalendarLegendFuture": "Mendatang",
   "khatmaCalendarTooltip": "Kalender bacaan",
-  "authSyncNoAccount": "Anda belum masuk — masuk terlebih dahulu untuk menyinkronkan data Anda"
+  "authSyncNoAccount": "Anda belum masuk — masuk terlebih dahulu untuk menyinkronkan data Anda",
+  "toolPrecisionQiblaTitle": "Kiblat Presisi (Pro)",
+  "toolPrecisionQiblaSubtitle": "Kompas utara sejati model geomagnetik"
 }

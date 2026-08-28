@@ -684,5 +684,7 @@
   "khatmaCalendarLegendMissed": "Ziel verpasst",
   "khatmaCalendarLegendFuture": "Bevorstehend",
   "khatmaCalendarTooltip": "Lesekalender",
-  "authSyncNoAccount": "Du bist nicht angemeldet -- melde dich zuerst an, um deine Daten zu synchronisieren"
+  "authSyncNoAccount": "Du bist nicht angemeldet -- melde dich zuerst an, um deine Daten zu synchronisieren",
+  "toolPrecisionQiblaTitle": "Praezise Qibla (Pro)",
+  "toolPrecisionQiblaSubtitle": "Geomagnetische echte Nordkompass"
 }

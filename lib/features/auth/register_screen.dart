@@ -92,7 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(backgroundColor: AppColors.primaryEmerald, foregroundColor: Colors.white, title: Text(l.authCreateAccount), elevation: 0),
       body: Container(
         decoration: const BoxDecoration(gradient: LinearGradient(colors: [AppColors.primaryEmerald, Color(0xFF064E3B)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-        child: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(28),
+        child: SafeArea(child: SingleChildScrollView(padding: EdgeInsets.fromLTRB(28, 28, 28, 28 + MediaQuery.of(context).padding.bottom),
           child: Form(key: _fk, autovalidateMode: AutovalidateMode.onUserInteraction, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             if (_error != null) Container(margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.red.shade900.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(12)), child: Text(_error!, style: const TextStyle(color: Colors.white))),
             _Fld(ctrl: _nc, label: l.authDisplayName, icon: Icons.person_outline, validator: (v) => (v==null||v.trim().isEmpty) ? l.authNameRequired : null),

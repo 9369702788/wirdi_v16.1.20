@@ -53,8 +53,7 @@ class _KhatmaCalendarScreenState extends State<KhatmaCalendarScreen> {
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
+              child: ListView(padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(context).padding.bottom),
                 children: [
                   for (final week in _weeks) ...[
                     _WeekRow(week: week, today: todayKey),

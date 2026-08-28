@@ -1124,5 +1124,7 @@
   "khatmaCalendarLegendMissed": "Objectif manqué",
   "khatmaCalendarLegendFuture": "À venir",
   "khatmaCalendarTooltip": "Calendrier de lecture",
-  "authSyncNoAccount": "Vous n'êtes pas connecté — connectez-vous d'abord pour synchroniser vos données"
+  "authSyncNoAccount": "Vous n'êtes pas connecté — connectez-vous d'abord pour synchroniser vos données",
+  "toolPrecisionQiblaTitle": "Qibla de precision (Pro)",
+  "toolPrecisionQiblaSubtitle": "Boussole nord vrai a modele geomagnetique"
 }

@@ -198,8 +198,7 @@ class _KhatmaTrackerScreenState extends State<KhatmaTrackerScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
-    return ListView(
-      padding: const EdgeInsets.all(24),
+    return ListView(padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + MediaQuery.of(context).padding.bottom),
       children: [
         const SizedBox(height: 12),
         const Icon(Icons.menu_book_outlined, size: 64, color: AppColors.primaryEmerald),

@@ -165,8 +165,7 @@ class _RamadanCompanionScreenState extends State<RamadanCompanionScreen> {
                     ),
                   ),
                 )
-              : ListView(
-                  padding: const EdgeInsets.all(20),
+              : ListView(padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.of(context).padding.bottom),
                   children: [
                     Text(
                       isRamadan ? l10n.ramadanDayOfRamadan(hijri.day) : hijri.toString(),

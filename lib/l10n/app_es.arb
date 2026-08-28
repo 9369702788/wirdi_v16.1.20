@@ -1124,5 +1124,7 @@
   "khatmaCalendarLegendMissed": "Objetivo no cumplido",
   "khatmaCalendarLegendFuture": "Próximo",
   "khatmaCalendarTooltip": "Calendario de lectura",
-  "authSyncNoAccount": "No has iniciado sesión — inicia sesión primero para sincronizar tus datos"
+  "authSyncNoAccount": "No has iniciado sesión — inicia sesión primero para sincronizar tus datos",
+  "toolPrecisionQiblaTitle": "Qibla de precision (Pro)",
+  "toolPrecisionQiblaSubtitle": "Brujula de norte verdadero con modelo geomagnetico"
 }

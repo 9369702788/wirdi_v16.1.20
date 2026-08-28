@@ -1124,5 +1124,7 @@
   "khatmaCalendarLegendMissed": "Target missed",
   "khatmaCalendarLegendFuture": "Upcoming",
   "khatmaCalendarTooltip": "Reading calendar",
-  "authSyncNoAccount": "You're not signed in -- sign in first to sync your data"
+  "authSyncNoAccount": "You're not signed in -- sign in first to sync your data",
+  "toolPrecisionQiblaTitle": "Precision Qibla (Pro)",
+  "toolPrecisionQiblaSubtitle": "Geomagnetic-model true-north compass"
 }

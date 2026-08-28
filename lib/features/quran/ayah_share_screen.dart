@@ -76,8 +76,7 @@ class _AyahShareScreenState extends State<AyahShareScreen> {
         children: [
           Expanded(
             child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+              child: SingleChildScrollView(padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.of(context).padding.bottom),
                 child: RepaintBoundary(
                   key: _cardKey,
                   child: _AyahCard(

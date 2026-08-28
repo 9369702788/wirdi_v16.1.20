@@ -177,8 +177,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: ListView(
-                padding: const EdgeInsets.all(20),
+              child: ListView(padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.of(context).padding.bottom),
                 children: [
                   Builder(builder: (context) {
                     final unlockedCount = _achievements.where((a) => a.isUnlocked(stats)).length;

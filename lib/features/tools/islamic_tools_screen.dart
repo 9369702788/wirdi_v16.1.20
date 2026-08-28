@@ -128,8 +128,8 @@ class IslamicToolsScreen extends StatelessWidget {
     ),
     _ToolEntry(
       icon: Icons.explore,
-      titleFor: (l10n) => 'Precision Qibla (Pro)',
-      subtitleFor: (l10n) => 'Geomagnetic-model true-north compass',
+      titleFor: (l10n) => l10n.toolPrecisionQiblaTitle,
+      subtitleFor: (l10n) => l10n.toolPrecisionQiblaSubtitle,
       builder: (_) => const AdvancedQiblaScreen(),
     ),
   ];

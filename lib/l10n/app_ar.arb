@@ -684,5 +684,7 @@
   "khatmaCalendarLegendMissed": "لم يتحقق الهدف",
   "khatmaCalendarLegendFuture": "قادم",
   "khatmaCalendarTooltip": "تقويم القراءة",
-  "authSyncNoAccount": "لست مسجّلاً الدخول -- سجّل الدخول أولًا لمزامنة بياناتك"
+  "authSyncNoAccount": "لست مسجّلاً الدخول -- سجّل الدخول أولًا لمزامنة بياناتك",
+  "toolPrecisionQiblaTitle": "القبلة الدقيقة (احترافي)",
+  "toolPrecisionQiblaSubtitle": "بوصلة اتجاه الشمال الحقيقي بنموذج مغناطيسي أرضي"
 }

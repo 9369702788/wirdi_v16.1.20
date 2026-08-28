@@ -684,5 +684,7 @@
   "khatmaCalendarLegendMissed": "Hedef kaçırıldı",
   "khatmaCalendarLegendFuture": "Yaklaşan",
   "khatmaCalendarTooltip": "Okuma takvimi",
-  "authSyncNoAccount": "Oturum açmadınız -- verilerinizi senkronize etmek için önce oturum açın"
+  "authSyncNoAccount": "Oturum açmadınız -- verilerinizi senkronize etmek için önce oturum açın",
+  "toolPrecisionQiblaTitle": "Hassas Kible (Pro)",
+  "toolPrecisionQiblaSubtitle": "Jeomanyetik model gercek kuzey pusulasi"
 }
