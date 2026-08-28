@@ -32,28 +32,38 @@ jobs:
       - name: Flutter doctor
         run: flutter doctor -v
 
-      - name: Use a STABLE debug keystore (so Google Sign-In's SHA-1 never changes)
+      - name: Use a STABLE debug keystore (GitHub Secret preferred, committed file as fallback)
+        id: keystore_setup
+        env:
+          DEBUG_KEYSTORE_BASE64: ${{ secrets.DEBUG_KEYSTORE_BASE64 }}
         run: |
           mkdir -p ~/.android
-          if [ -f "debug.keystore" ]; then
-            echo "Found a debug.keystore committed in the repo -- reusing it so the app's signing fingerprint stays IDENTICAL across every build."
+          if [ -n "$DEBUG_KEYSTORE_BASE64" ]; then
+            echo "Using debug.keystore from the DEBUG_KEYSTORE_BASE64 GitHub Secret (most robust source)."
+            echo "$DEBUG_KEYSTORE_BASE64" | base64 -d > ~/.android/debug.keystore
+          elif [ -f "debug.keystore" ]; then
+            echo "Using debug.keystore committed in the repo root."
             cp debug.keystore ~/.android/debug.keystore
           else
-            echo "::warning::No debug.keystore found in the repo -- generating a NEW one for this build only."
-            echo "::warning::Google/Apple Sign-In will keep breaking between builds until you commit this file permanently."
-            keytool -genkeypair -v \
-              -keystore ~/.android/debug.keystore \
-              -storepass android -keypass android \
-              -alias androiddebugkey \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Android Debug,O=Android,C=US"
-            cp ~/.android/debug.keystore debug.keystore
+            echo "::error::No debug.keystore found (no DEBUG_KEYSTORE_BASE64 secret and no committed debug.keystore)."
+            echo "::error::Refusing to silently generate a random one -- see LOCAL_DEV_SETUP.md."
+            exit 1
           fi
+
           echo ""
-          echo "===== SHA-1 / SHA-256 fingerprint for this build's signing key ====="
-          echo "===== Add BOTH of these to Firebase Console > Project Settings > Your Android app ====="
+          echo "===== DEBUG keystore fingerprint actually used to sign THIS build ====="
+          echo "(This is the DEBUG certificate. It is DIFFERENT from the RELEASE keystore"
+          echo " used for the Play Store build, and DIFFERENT again from the Google Play"
+          echo " App Signing certificate Google re-signs your release AAB with. Each of"
+          echo " the three needs its OWN SHA-1 registered in Firebase separately.)"
           keytool -list -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey | grep -E "SHA1:|SHA256:"
-          echo "======================================================================"
+          SHA1=$(keytool -list -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey | grep "SHA1:" | sed "s/.*SHA1: //")
+          SHA256=$(keytool -list -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey | grep "SHA256:" | sed "s/.*SHA256: //")
+          echo "sha1=$SHA1" >> "$GITHUB_OUTPUT"
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+          echo "=========================================================================="
+
+          cp ~/.android/debug.keystore debug.keystore
 
       - name: Upload debug.keystore (download this ONCE and commit it to the repo root permanently)
         uses: actions/upload-artifact@v4
@@ -142,6 +152,22 @@ jobs:
           else:
               print("WARNING: android/build.gradle.kts not found -- classpath NOT added")
           PY
+
+      - name: HARD GATE -- verify Google Sign-In configuration before building (DEBUG cert)
+        run: |
+          python3 scripts/verify_google_signin_config.py \
+            --google-services google-services.json \
+            --auth-service lib/core/services/auth_service.dart \
+            --package com.wirdi.wirdi \
+            --firebase-project wirdi-cd6c0 \
+            --build-type debug \
+            --keystore-sha1 "${{ steps.keystore_setup.outputs.sha1 }}" \
+            --keystore-sha256 "${{ steps.keystore_setup.outputs.sha256 }}"
+          # NOTE: PASS here only proves the DEBUG certificate matches Firebase.
+          # It does NOT prove Google Sign-In works at runtime, and it says
+          # NOTHING about the separate RELEASE or Google Play App Signing
+          # certificates -- those need their own SHA-1 registered in Firebase
+          # and are not validated by this step. See RELEASE_SIGNING_SETUP.md.
 
 
 
