@@ -11,6 +11,7 @@ build/
 android/
 ios/
 *.keystore
+!debug.keystore
 *.jks
 key.properties
 
