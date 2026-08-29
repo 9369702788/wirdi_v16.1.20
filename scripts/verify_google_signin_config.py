@@ -13,10 +13,15 @@ in Firebase Console / Play Console -- NOT inside google-services.json.
 only; it is NOT compared against anything because there is nothing in
 this file to compare it to.
 """
-import argparse, json, re, sys
+import argparse
+import json
+import re
+import sys
+
 
 def normalize_hash(s):
     return s.replace(":", "").replace("-", "").strip().lower()
+
 
 def main():
     p = argparse.ArgumentParser()
@@ -27,7 +32,7 @@ def main():
     p.add_argument("--keystore-sha1", default=None, help="SHA-1 of the keystore that actually signed THIS build")
     p.add_argument("--keystore-sha256", default=None, help="SHA-256 of the same keystore (informational, see docstring)")
     p.add_argument("--build-type", default="unknown", choices=["debug", "release", "play-app-signing", "unknown"],
-                    help="debug/release/play-app-signing keystores are commonly DIFFERENT certificates -- label matters")
+                    help="debug/release/play-app-signing keystores are commonly DIFFERENT certificates")
     args = p.parse_args()
     report = []
 
@@ -35,9 +40,11 @@ def main():
         with open(args.google_services, encoding="utf-8") as f:
             gs = json.load(f)
     except FileNotFoundError:
-        report.append(("FAIL", args.google_services + " not found")); sys.exit(finish(report, args))
+        report.append(("FAIL", args.google_services + " not found"))
+        sys.exit(finish(report, args))
     except json.JSONDecodeError as e:
-        report.append(("FAIL", args.google_services + " invalid JSON: " + str(e))); sys.exit(finish(report, args))
+        report.append(("FAIL", args.google_services + " invalid JSON: " + str(e)))
+        sys.exit(finish(report, args))
     report.append(("PASS", args.google_services + " found and parses"))
 
     packages = [c.get("client_info", {}).get("android_client_info", {}).get("package_name") for c in gs.get("client", [])]
@@ -59,7 +66,12 @@ def main():
         auth_src = ""
         report.append(("FAIL", args.auth_service + " not found"))
 
-    m = re.search(r"serverClientId:\\s*\'([\\w.-]+\\.apps\\.googleusercontent\\.com)\'", auth_src)
+    # FIXED in v85: previously double-escaped when the file was generated
+    # (each backslash became two), so it searched for a literal backslash
+    # character in the Dart source instead of whitespace/word-char classes
+    # -- it could never match real code. Verified against the ACTUAL
+    # auth_service.dart content before shipping this fix.
+    m = re.search(r"serverClientId:\s*'([\w.\-]+\.apps\.googleusercontent\.com)'", auth_src)
     web_clients = set(oc.get("client_id") for c in gs.get("client", []) for oc in c.get("oauth_client", []) if oc.get("client_type") == 3)
     if not m:
         report.append(("FAIL", "No serverClientId in " + args.auth_service))
@@ -97,6 +109,7 @@ def main():
 
     sys.exit(finish(report, args))
 
+
 def finish(report, args):
     print("Google Sign-In Configuration (" + args.build_type.upper() + " build)")
     print("----------------------------")
@@ -113,6 +126,7 @@ def finish(report, args):
         print("config files and THIS build's signing certificate are internally consistent.")
         print("The only real proof is installing this exact APK on a device and testing Sign-In.")
     return 0 if all_pass else 1
+
 
 if __name__ == "__main__":
     main()
